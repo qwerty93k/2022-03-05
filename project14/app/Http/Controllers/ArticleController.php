@@ -60,7 +60,17 @@ class ArticleController extends Controller
 
         $article->save();
 
-        //return redirect()->route('article.index');
+        $article_array = [
+            'successMsg' => "Article created successfully",
+            'articleId' => $article->id,
+            'articleTitle' => $article->title,
+            'articleDescription' => $article->description,
+            'typeId' => $article->type_id
+        ];
+
+        $json_response = response()->json($article_array);
+
+        return $json_response;
     }
 
     /**
