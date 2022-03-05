@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Article;
 use App\Http\Requests\StoreArticleRequest;
 use App\Http\Requests\UpdateArticleRequest;
+use App\Models\Type;
+use Illuminate\Http\Request;
 
 class ArticleController extends Controller
 {
@@ -15,7 +17,10 @@ class ArticleController extends Controller
      */
     public function index()
     {
-        //
+        $articles = Article::all();
+        $types = Type::all();
+
+        return view('article.index', ['articles' => $articles, 'types' => $types]);
     }
 
     /**
@@ -25,7 +30,7 @@ class ArticleController extends Controller
      */
     public function create()
     {
-        //
+        return view('article.index');
     }
 
     /**
@@ -34,9 +39,28 @@ class ArticleController extends Controller
      * @param  \App\Http\Requests\StoreArticleRequest  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(StoreArticleRequest $request)
+    public function store(Request $request)
     {
-        //
+        $article = new Article;
+        $article->title = $request->article_title;
+        $article->description = $request->article_description;
+        $article->type_id = $request->type_id;
+
+        $article->save();
+
+        return redirect()->route('article.index');
+    }
+
+    public function storeAjax(Request $request)
+    {
+        $article = new Article;
+        $article->title = $request->article_title;
+        $article->description = $request->article_description;
+        $article->type_id = $request->type_id;
+
+        $article->save();
+
+        //return redirect()->route('article.index');
     }
 
     /**
