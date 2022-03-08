@@ -81,7 +81,22 @@ class ArticleController extends Controller
      */
     public function show(Article $article)
     {
-        //
+        return view("article.show", ['article' => $article]);
+    }
+
+    public function showAjax(Article $article)
+    {
+        $article_array = [
+            'successMsg' => "Article retrieved successfully",
+            'articleId' => $article->id,
+            'articleTitle' => $article->title,
+            'articleDescription' => $article->description,
+            'typeId' => $article->type_id
+        ];
+
+        $json_response = response()->json($article_array);
+
+        return $json_response;
     }
 
     /**
@@ -102,9 +117,30 @@ class ArticleController extends Controller
      * @param  \App\Models\Article  $article
      * @return \Illuminate\Http\Response
      */
-    public function update(UpdateArticleRequest $request, Article $article)
+    public function update(Request $request, Article $article)
     {
         //
+    }
+
+    public function updateAjax(Request $request, Article $article)
+    {
+        $article->title = $request->article_title;
+        $article->description = $request->article_description;
+        $article->type_id = $request->type_id;
+
+        $article->save();
+
+        $article_array = [
+            'successMsg' => "Article updated successfully",
+            'articleId' => $article->id,
+            'articleTitle' => $article->title,
+            'articleDescription' => $article->description,
+            'typeId' => $article->type_id
+        ];
+
+        $json_response = response()->json($article_array);
+
+        return $json_response;
     }
 
     /**
