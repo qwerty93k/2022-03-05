@@ -4,106 +4,11 @@
 
 <div class="container">
 
-        <!-- Button trigger modal -->
-        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createArticleModal">
-            New Article
-        </button>
+<!-- Button trigger modal -->
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createArticleModal">
+        New Article
+    </button>
         
-        <!-- Create Modal -->
-        <div class="modal fade" id="createArticleModal" tabindex="-1" aria-labelledby="createArticleLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="createArticleLabel">Article Create</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        {{--AjaxForm--}}
-                        <div class="ajaxForm">
-                            <div class="form-control">
-                                <label for="article_title">Title</label>
-                                <input type="text" name="article_title" id="article_title" class="form-control">
-                            </div>
-                            <div class="form-control">
-                                <label for="article_description">Description</label>
-                                <input type="text" name="article_description" id="article_description" class="form-control">
-                            </div>
-                            <div class="form-control">
-                                <label for="type_id">Type</label>
-                                <select name="type_id" id="type_id" class="form-control">
-                                    @foreach ($types as $title)
-                                    <option value={{$title->id}}>{{$title->title}}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                            <button type="button" class="btn btn-primary" id="submit-ajax-form">Save changes</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-{{-- Show Modal --}}
-        <div class="modal fade" id="showArticleModal" tabindex="-1" aria-labelledby="showArticleLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="showArticleLabel">Article</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                            <div class="show-article-id"></div>
-                            <div class="show-article-name"></div>
-                            <div class="show-article-description"></div>
-                            <div class="show-article-type"></div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-{{-- Edit Modal --}}
-
-        <div class="modal fade" id="editArticleModal" tabindex="-1" aria-labelledby="editArticleLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="editArticleLabel">Edit Article</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="ajaxForm">
-                            <input type="hidden" id="edit_article_id" name="article_id" />
-                            <div class="form-control">
-                                <label for="article_title">Title</label>
-                                <input type="text" name="article_title" id="edit_article_title" class="form-control">
-                            </div>
-                            <div class="form-control">
-                                <label for="article_description">Description</label>
-                                <input type="text" name="article_description" id="edit_article_description" class="form-control">
-                            </div>
-                            <div class="form-control">
-                                <label for="type_id">Type</label>
-                                <select name="type_id" id="edit_type_id" class="form-control">
-                                    @foreach ($types as $title)
-                                    <option value={{$title->id}}>{{$title->title}}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                            <button type="button" class="btn btn-primary" id="update-article">Update</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
 
 {{-- Atvaizdavimas --}}
     
@@ -130,6 +35,20 @@
             </tr>
         @endforeach
     </table>
+
+    <table class="template">
+        <tr>
+            <td class="col-article-id"></td>
+            <td class="col-article-title"></td>
+            <td class="col-article-description"></td>
+            <td class="col-article-type"></td>
+            <td>
+                <button class="btn btn-danger delete-article" type="submit" data-articleid="{{$article->id}}">Delete</button>
+                <button type="button" class="btn btn-primary show-article" data-bs-toggle="modal" data-bs-target="#showArticleModal" data-articleid="{{$article->id}}">Show</button>
+                <button type="button" class="btn btn-secondary edit-article" data-bs-toggle="modal" data-bs-target="#editArticleModal" data-articleid="{{$article->id}}">Edit</button>
+            </td>
+        </tr>
+    </table>
 </div>
 
 <script>
@@ -141,6 +60,40 @@
     });
 
     $(document).ready(function(){
+
+        //2budas
+        function createRow(articleId, articleTitle, articleDescription, typeId){
+            let html;
+            html += "<tr class='article"+data.articleId+"'>";
+            html += "<td>"+articleId+"</td>"
+            html += "<td>"+articleTitle+"</td>"
+            html += "<td>"+articleDescription+"</td>"
+            html += "<td>"+type_id+"</td>"
+            html += "<td>";
+            html += "<button class='btn btn-danger delete-article' type='submit' data-articleid='"+articleId+"'>Delete</button>";
+            html += "<button type='button' class='btn btn-primary show-article' data-bs-toggle='modal' data-bs-target='#showArticleModal' data-articleid='{{$article->id}}'>Show</button>";
+            html += "<button type='button' class='btn btn-secondary edit-article' data-bs-toggle='modal' data-bs-target='#editArticleModal' data-articleid='{{$article->id}}'>Edit</button></td>";
+            html += "</td>"
+            html += "</tr>";
+
+            return html;
+        }
+
+        function createRowFormHtml(articleId, articleTitle, articleDescription, type_id){
+            $(".template tr").addClass("article"+articleId);
+            $(".template .delete-article").attr('data-articleid', articleId);
+            $(".template .show-article").attr('data-articleid', articleId);
+            $(".template .edit-article").attr('data-articleid', articleId);
+            $(".template .col-article-id").html('data-articleid', articleId);
+            $(".template .col-article-title").html('data-articleid', articleId);
+            $(".template .col-article-description").html('data-articleid', articleId);
+            $(".template .col-article-type").html('data-articleid', articleId);
+
+            //console.log($(".template tbody".html());
+            return $(".template tbody").html();
+        }
+
+        createRowFormHtml(5);
 
         console.log("Jquery veikia");
         $("#submit-ajax-form").click(function(){
@@ -157,7 +110,24 @@
                 url: '{{route("article.storeAjax")}}', // action
                 data: {article_title: article_title, article_description: article_description, type_id: type_id}, // duomenys
                 success: function(data){ // tikrina ar uzklausa pasieke serveri ir spausdina pranesima
-                    let html = "<tr class='article"+data.articleId+"'><td>"+data.articleId+"</td><td>"+data.articleTitle+"</td><td>"+data.articleDescription+"</td><td>"+data.type_id+"</td><td><button class='btn btn-danger delete-article' type='submit' data-articleid='"+data.articleId+"'>Delete</button><button type='button' class='btn btn-primary show-article' data-bs-toggle='modal' data-bs-target='#showArticleModal' data-articleid='{{$article->id}}'>Show</button><button type='button' class='btn btn-secondary edit-article' data-bs-toggle='modal' data-bs-target='#editArticleModal' data-articleid='{{$article->id}}'>Edit</button></td></tr>";
+                    let html;
+                    
+                    //1variantas
+                    // html += "<tr class='article"+data.articleId+"'>";
+                    // html += "<td>"+data.articleId+"</td>"
+                    // html += "<td>"+data.articleTitle+"</td>"
+                    // html += "<td>"+data.articleDescription+"</td>"
+                    // html += "<td>"+data.type_id+"</td>"
+                    // html += "<td>";
+                    // html += "<button class='btn btn-danger delete-article' type='submit' data-articleid='"+data.articleId+"'>Delete</button>";
+                    // html += "<button type='button' class='btn btn-primary show-article' data-bs-toggle='modal' data-bs-target='#showArticleModal' data-articleid='{{$article->id}}'>Show</button>";
+                    // html += "<button type='button' class='btn btn-secondary edit-article' data-bs-toggle='modal' data-bs-target='#editArticleModal' data-articleid='{{$article->id}}'>Edit</button></td>";
+                    // html += "</td>"
+                    // html += "</tr>";
+
+                   // html = createRow(data.articleId, data.articleTitle, data.articleDescription, data.typeId);
+
+                    html = createRowFormHtml(data.articleId, data.articleTitle, data.articleDescription, data.type_id);
                     $("#article-table").append(html);
 
                     $("#createArticleModal").hide(); //isjungia modal kai prideta sekmingai
