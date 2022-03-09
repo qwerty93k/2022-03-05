@@ -35,20 +35,6 @@
             </tr>
         @endforeach
     </table>
-
-    <table class="template">
-        <tr>
-            <td class="col-article-id"></td>
-            <td class="col-article-title"></td>
-            <td class="col-article-description"></td>
-            <td class="col-article-type"></td>
-            <td>
-                <button class="btn btn-danger delete-article" type="submit" data-articleid="{{$article->id}}">Delete</button>
-                <button type="button" class="btn btn-primary show-article" data-bs-toggle="modal" data-bs-target="#showArticleModal" data-articleid="{{$article->id}}">Show</button>
-                <button type="button" class="btn btn-secondary edit-article" data-bs-toggle="modal" data-bs-target="#editArticleModal" data-articleid="{{$article->id}}">Edit</button>
-            </td>
-        </tr>
-    </table>
 </div>
 
 <script>
@@ -61,7 +47,6 @@
 
     $(document).ready(function(){
 
-        //2budas
         function createRow(articleId, articleTitle, articleDescription, typeId){
             let html;
             html += "<tr class='article"+data.articleId+"'>";
@@ -79,22 +64,6 @@
             return html;
         }
 
-        function createRowFormHtml(articleId, articleTitle, articleDescription, type_id){
-            $(".template tr").addClass("article"+articleId);
-            $(".template .delete-article").attr('data-articleid', articleId);
-            $(".template .show-article").attr('data-articleid', articleId);
-            $(".template .edit-article").attr('data-articleid', articleId);
-            $(".template .col-article-id").html('data-articleid', articleId);
-            $(".template .col-article-title").html('data-articleid', articleId);
-            $(".template .col-article-description").html('data-articleid', articleId);
-            $(".template .col-article-type").html('data-articleid', articleId);
-
-            //console.log($(".template tbody".html());
-            return $(".template tbody").html();
-        }
-
-        createRowFormHtml(5);
-
         console.log("Jquery veikia");
         $("#submit-ajax-form").click(function(){
             let article_title;
@@ -111,21 +80,6 @@
                 data: {article_title: article_title, article_description: article_description, type_id: type_id}, // duomenys
                 success: function(data){ // tikrina ar uzklausa pasieke serveri ir spausdina pranesima
                     let html;
-                    
-                    //1variantas
-                    // html += "<tr class='article"+data.articleId+"'>";
-                    // html += "<td>"+data.articleId+"</td>"
-                    // html += "<td>"+data.articleTitle+"</td>"
-                    // html += "<td>"+data.articleDescription+"</td>"
-                    // html += "<td>"+data.type_id+"</td>"
-                    // html += "<td>";
-                    // html += "<button class='btn btn-danger delete-article' type='submit' data-articleid='"+data.articleId+"'>Delete</button>";
-                    // html += "<button type='button' class='btn btn-primary show-article' data-bs-toggle='modal' data-bs-target='#showArticleModal' data-articleid='{{$article->id}}'>Show</button>";
-                    // html += "<button type='button' class='btn btn-secondary edit-article' data-bs-toggle='modal' data-bs-target='#editArticleModal' data-articleid='{{$article->id}}'>Edit</button></td>";
-                    // html += "</td>"
-                    // html += "</tr>";
-
-                   // html = createRow(data.articleId, data.articleTitle, data.articleDescription, data.typeId);
 
                     html = createRowFormHtml(data.articleId, data.articleTitle, data.articleDescription, data.type_id);
                     $("#article-table").append(html);
