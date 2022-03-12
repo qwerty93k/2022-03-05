@@ -23,6 +23,18 @@ class ArticleController extends Controller
         return view('article.index', ['articles' => $articles, 'types' => $types]);
     }
 
+    public function indexAjax()
+    {
+        $articles = Article::with('type_id')->sortable()->get();
+
+        $articles_array = array(
+            'articles' => $articles
+        );
+
+        $json_response = response()->json($articles_array);
+        return $json_response;
+    }
+
     /**
      * Show the form for creating a new resource.
      *
@@ -164,6 +176,34 @@ class ArticleController extends Controller
         ];
 
         $json_response = response()->json($success_array);
+
+        return $json_response;
+    }
+
+    public function searchAjax(Request $request)
+    {
+
+        $searchValue = $request->searchValue;
+
+        $articles = Article::query()
+            ->where('title', 'like', "%{$searchValue}%")
+            ->orWhere('description', 'like', "%{$searchValue}%")
+            ->orWhere('type', 'like', "%{$searchValue}%")
+            ->get();
+
+        if (count($articles) > 0) {
+            $articles_array = array(
+                'articles' => $articles
+            );
+        } else {
+            $articles_array = array(
+                'errorMessage' => 'No articles found'
+            );
+        }
+
+
+
+        $json_response = response()->json($articles_array);
 
         return $json_response;
     }

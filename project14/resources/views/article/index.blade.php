@@ -2,38 +2,59 @@
 
 @section('content')
 
+<style>
+    th div {
+      cursor: pointer;
+    }
+</style> 
+
 <div class="container">
 
 <!-- Button trigger modal -->
     <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createArticleModal">
         New Article
     </button>
-        
+
+    <input id="hidden-sort" type="hidden" value="id"/>
+    <input id="hidden-direction" type="hidden" value="asc"/>
+
+    <div id="alert" class="alert alert-success d-none">
+    </div>  
+
+{{-- paieska --}}
+    <div class="searchAjaxForm">
+        <input id="searchValue" type="text">
+        <button type="button" id="submitSearch">Find</button>
+    </div>
 
 {{-- Atvaizdavimas --}}
     
     <div class="alert alert-success d-none" id="alert"></div> {{--Alert pranesimas--}}
     <table id="article-table" class="table table-striped">
-        <tr>
-            <th>Id</th>
-            <th>Article Title</th>
-            <th>Description</th>
-            <th>Type</th>
-            <th>Action</th>
-        </tr>
-        @foreach ($articles as $article) 
-            <tr class="article{{$article->id}}">
-                <td class="col-article-id">{{$article->id}}</td>
-                <td class="col-article-title">{{$article->title}}</td>
-                <td class="col-article-description">{{$article->description}}</td>
-                <td class="col-article-type">{{$article->articleType->title}}</td>
-                <td>
-                    <button class="btn btn-danger delete-article" type="submit" data-articleid="{{$article->id}}">Delete</button>
-                    <button type="button" class="btn btn-primary show-article" data-bs-toggle="modal" data-bs-target="#showArticleModal" data-articleid="{{$article->id}}">Show</button>
-                    <button type="button" class="btn btn-secondary edit-article" data-bs-toggle="modal" data-bs-target="#editArticleModal" data-articleid="{{$article->id}}">Edit</button>
-                </td>
+        <thead>
+            <tr>
+                <th><div class="article-sort" data-sort="id" data-direction="asc">Id</div></th>
+                <th><div class="article-sort" data-sort="title" data-direction="asc">Article Title</div></th>
+                <th><div class="article-sort" data-sort="description" data-direction="asc">Description</div></th>
+                <th><div class="article-sort" data-sort="articleType->title" data-direction="asc">Type</div></th>
+                <th>Action</th>
             </tr>
-        @endforeach
+        </thead>
+        <tbody>
+            @foreach ($articles as $article) 
+                <tr class="article{{$article->id}}">
+                    <td class="col-article-id">{{$article->id}}</td>
+                    <td class="col-article-title">{{$article->title}}</td>
+                    <td class="col-article-description">{{$article->description}}</td>
+                    <td class="col-article-type">{{$article->articleType->title}}</td>
+                    <td>
+                        <button class="btn btn-danger delete-article" type="submit" data-articleid="{{$article->id}}">Delete</button>
+                        <button type="button" class="btn btn-primary show-article" data-bs-toggle="modal" data-bs-target="#showArticleModal" data-articleid="{{$article->id}}">Show</button>
+                        <button type="button" class="btn btn-secondary edit-article" data-bs-toggle="modal" data-bs-target="#editArticleModal" data-articleid="{{$article->id}}">Edit</button>
+                    </td>
+                </tr>
+            @endforeach
+        </tbody>
     </table>
 </div>
 
@@ -77,12 +98,12 @@
             $.ajax({ // siuncia ajax uzklausa i serveri
                 type: 'POST', //method
                 url: '{{route("article.storeAjax")}}', // action
-                data: {article_title: article_title, article_description: article_description, type_id: type_id}, // duomenys
+                data: {article_title: article_title, article_description: article_description, type_id: type_id, sort:sort, direction:direction}, // duomenys
                 success: function(data){ // tikrina ar uzklausa pasieke serveri ir spausdina pranesima
                     let html;
 
-                    html = createRowFormHtml(data.articleId, data.articleTitle, data.articleDescription, data.type_id);
-                    $("#article-table").append(html);
+                    html = createRowFormHtml(article.Id, article.Title, article.Description, article.type_id);
+                    $("#article-table tbody").append(html);
 
                     $("#createArticleModal").hide(); //isjungia modal kai prideta sekmingai
                     $('body').removeClass('modal-open');
@@ -149,7 +170,7 @@
                     $('#edit_type_id').val(data.typeId);
                 }
             }); 
-        })
+        });
         $(document).on('click','.update-article', function(){
             let articleid;
             let article_title;
@@ -179,7 +200,75 @@
                     $('body').css({overflow:'auto'})
                 }
             }); 
-        })
+        });
+
+        // SORT MYGTUKAS
+
+        $('.article-sort').click(function() {
+          let sort;
+          let direction;
+          sort = $(this).attr('data-sort');
+          direction = $(this).attr('data-direction');
+          $("#hidden-sort").val(sort);
+          $("#hidden-direction").val(direction);
+          if(direction == 'asc'){
+            $(this).attr('data-direction', 'desc')
+          } else {
+            $(this).attr('data-direction', 'asc')
+          }
+          $.ajax({
+                type: 'GET',// formoje method POST GET
+                url: '{{route("article.indexAjax")}}'  ,// formoje action
+                data: {sort: sort, direction: direction },
+                success: function(data) {
+                  console.log(data.article);
+                  //perbraizysiu lentele
+                    //ciklo kuris eina per visa masyva
+                    //kiekvienos ciklo iteracijos metu mes tiesiog turime klienta prikabinti prie tbody tago
+                  //mygtuku rikiavimui
+                  // foreach 
+                  $("#article-table tbody").html('');
+                  $.each(data.article, function(key,article){ //jquery foreach ciklas
+                    let html;
+                    html = createRowFormHtml(article.Id, article.Title, article.Description, article.type_id);
+                    //console.log(html);
+                    $("#article-table tbody").append(html);
+                  });
+                }
+            });
+        });
+
+        // SEARCH MYGTUKAS
+            $('#submitSearch').click(function() {
+
+        let searchValue = $('#searchValue').val();
+        console.log(searchValue);
+        $.ajax({
+                type: 'GET',
+                url: '{{route("article.searchAjax")}}'  ,
+                data: {searchValue: searchValue},
+                success: function(data) {
+                  if($.isEmptyObject(data.errorMessage)) {
+                    //sekmes atvejis
+                    $("#article-table").show();
+                    $("#alert").addClass("d-none");
+                    $("#article-table tbody").html('');
+                     $.each(data.article, function(key, article) {
+                          let html;
+                          html = createRowFromHtml(article.Id, article.Title, article.Description, article.type_id);
+                          // console.log(html)
+                          $("#article-table tbody").append(html);
+                     });                             
+                  } else {
+                        $("#article-table").hide();
+                        $('#alert').removeClass('alert-success');
+                        $('#alert').addClass('alert-danger');
+                        $("#alert").removeClass("d-none");
+                        $("#alert").html(data.errorMessage); 
+                  }                            
+                }
+            });
+        });
 
     })
 </script>

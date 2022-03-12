@@ -1,4 +1,4 @@
-        <!-- Create Modal -->
+<!-- Create Modal -->
         <div class="modal fade" id="createArticleModal" tabindex="-1" aria-labelledby="createArticleLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
@@ -28,7 +28,7 @@
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                            <button type="button" class="btn btn-primary" id="submit-ajax-form">Save changes</button>
+                            <button type="button" class="btn btn-primary" id="submit-ajax-form">Create</button>
                         </div>
                     </div>
                 </div>
@@ -87,7 +87,7 @@
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                            <button type="button" class="btn btn-primary" id="update-article">Update</button>
+                            <button type="button" class="btn btn-primary update-article" id="update-article">Update</button>
                         </div>
                     </div>
                 </div>
