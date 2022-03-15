@@ -58,6 +58,20 @@
     </table>
 </div>
 
+<table class="template d-none">
+    <tr>
+      <td class="col-article-id"></td>
+      <td class="col-article-title"></td>
+      <td class="col-article-description"></td>
+      <td class="ccol-article-type"></td>
+      <td>
+        <button class="btn btn-danger delete-article" type="submit" data-articleid="">DELETE</button>
+        <button type="button" class="btn btn-primary show-article" data-bs-toggle="modal" data-bs-target="#showArticleModal" data-articleid="">Show</button>
+        <button type="button" class="btn btn-secondary edit-article" data-bs-toggle="modal" data-bs-target="#editArticleModal" data-articleid="">Edit</button>
+      </td>
+    </tr>  
+</table> 
+
 <script>
 
     $.ajaxSetup({ //formos apsaugos imitavimas csrf
@@ -85,15 +99,33 @@
             return html;
         }
 
+        function createRowFromHtml(articleId, articleTitle, articleDescription, type_id) {
+          $(".template tr").removeAttr("class");
+          $(".template tr").addClass("client"+articleId);
+          $(".template .delete-article").attr('data-articleid', articleId );
+          $(".template .show-article").attr('data-articleid', articleId );
+          $(".template .edit-article").attr('data-articleid', articleId );
+          $(".template .col-article-id").html(articleId );
+          $(".template .col-article-title").html(articleTitle );
+          $(".template .col-article-description").html(articleDescription );
+          $(".template .col-article-type").html(type_id );
+    
+          return $(".template tbody").html();
+        }
+
         console.log("Jquery veikia");
         $("#submit-ajax-form").click(function(){
             let article_title;
             let article_description;
             let type_id;
+            let sort;
+            let direction;
 
             article_title = $('#article_title').val();
             article_description = $('#article_description').val();
             type_id = $('#type_id').val();
+            sort = $('#hidden-sort').val();
+            direction = $('#hidden-direction').val();
 
             $.ajax({ // siuncia ajax uzklausa i serveri
                 type: 'POST', //method
@@ -102,8 +134,12 @@
                 success: function(data){ // tikrina ar uzklausa pasieke serveri ir spausdina pranesima
                     let html;
 
-                    html = createRowFormHtml(article.Id, article.Title, article.Description, article.type_id);
-                    $("#article-table tbody").append(html);
+                    if($.isEmptyObject(data.errorMessage)){
+                        $("#article-table tbody").html('');
+                        $.each(data.article, function(key. artcile){
+                            html = createRowFromHtml(article.Id, article.Title, article.Description, article.type_id);
+                            $("#article-table tbody").append(html);
+                        });
 
                     $("#createArticleModal").hide(); //isjungia modal kai prideta sekmingai
                     $('body').removeClass('modal-open');
@@ -112,9 +148,26 @@
                     
                     $("#alert").removeClass("d-none");
                     $("#alert").html(data.successMsg + " " + data.articleTitle);
+
+                    $('#article_title').val('');
+                    $('#article_description').val('');
+                    $('#type_id').val('');
+                    } else {
+                        console.log(data.errorMessage);
+                        console.log(data.errors);
+                        $('.create-input').removeClass('is-invalid');
+                        $('.invalid-feedback').html('');
+
+                        $.each(data.errors, function(key, error){
+                            console.log(key);//key = input id
+                            $('#'+key).addClass('is-invalid');
+                            $('.input_'+key).html("<strong>"+error+"</strong>");
+                        });
+                    }
                 }
             }); 
         });
+        
 
         // delete mygtukas
 
@@ -230,7 +283,7 @@
                   $("#article-table tbody").html('');
                   $.each(data.article, function(key,article){ //jquery foreach ciklas
                     let html;
-                    html = createRowFormHtml(article.Id, article.Title, article.Description, article.type_id);
+                    html = createRowFromHtml(article.Id, article.Title, article.Description, article.type_id);
                     //console.log(html);
                     $("#article-table tbody").append(html);
                   });
