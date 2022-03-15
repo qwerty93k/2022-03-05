@@ -101,7 +101,7 @@
 
         function createRowFromHtml(articleId, articleTitle, articleDescription, type_id) {
           $(".template tr").removeAttr("class");
-          $(".template tr").addClass("client"+articleId);
+          $(".template tr").addClass("article"+articleId);
           $(".template .delete-article").attr('data-articleid', articleId );
           $(".template .show-article").attr('data-articleid', articleId );
           $(".template .edit-article").attr('data-articleid', articleId );
@@ -220,7 +220,10 @@
                     $('#edit_article_id').val(data.articleId);
                     $('#edit_article_title').val(data.articleTitle); //input = val // div = html
                     $('#edit_article_description').val(data.articleDescription);
-                    $('#edit_type_id').val(data.typeId);
+
+                    $('#edit_type_id option').removeAttr('selected');
+                    $('#edit_type_id').val(data.articleTypeId);
+                    $('#edit_type_id .type'+ data.articleTypeId).attr("selected", "selected"); 
                 }
             }); 
         });
@@ -260,15 +263,19 @@
         $('.article-sort').click(function() {
           let sort;
           let direction;
+
           sort = $(this).attr('data-sort');
           direction = $(this).attr('data-direction');
+
           $("#hidden-sort").val(sort);
           $("#hidden-direction").val(direction);
+
           if(direction == 'asc'){
             $(this).attr('data-direction', 'desc')
           } else {
             $(this).attr('data-direction', 'asc')
           }
+
           $.ajax({
                 type: 'GET',// formoje method POST GET
                 url: '{{route("article.indexAjax")}}'  ,// formoje action
@@ -283,7 +290,7 @@
                   $("#article-table tbody").html('');
                   $.each(data.article, function(key,article){ //jquery foreach ciklas
                     let html;
-                    html = createRowFromHtml(article.Id, article.Title, article.Description, article.type_id);
+                    html = createRowFromHtml(article.Id, article.Title, article.Description, article.type_id.title);
                     //console.log(html);
                     $("#article-table tbody").append(html);
                   });
@@ -292,15 +299,29 @@
         });
 
         // SEARCH MYGTUKAS
-            $('#submitSearch').click(function() {
-
+        $(document).on('input', '#searchValue', function() {
         let searchValue = $('#searchValue').val();
-        console.log(searchValue);
+        let searchFieldCount= searchValue.length;
+
+            if(searchFieldCount == 0) {
+                console.log("Field is empty");
+                $(".search-feedback").css('display', 'block');
+                $(".search-feedback").html("Field is empty");
+            }else if (searchFieldCount != 0 && searchFieldCount< 3 ) {
+                console.log("Min 3");
+                $(".search-feedback").css('display', 'block');
+                $(".search-feedback").html("Min 3");
+            }else {
+                $(".search-feedback").css('display', 'none');
+            console.log(searchFieldCount);
+            console.log(searchValue);
+
         $.ajax({
                 type: 'GET',
                 url: '{{route("article.searchAjax")}}'  ,
                 data: {searchValue: searchValue},
                 success: function(data) {
+                    
                   if($.isEmptyObject(data.errorMessage)) {
                     //sekmes atvejis
                     $("#article-table").show();
